@@ -6,6 +6,14 @@ RUN apt-get update && apt-get install -y libsqlite3-dev \
 COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html
 
-EXPOSE 8080
+# Benerin konflik MPM
+RUN a2dismod mpm_event mpm_worker || true
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* || true
+RUN a2enmod mpm_prefork
 
-CMD ["bash", "-lc", "set -eux; a2dismod mpm_event mpm_worker || true; rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* || true; a2enmod mpm_prefork; sed -i 's/Listen 80/Listen 8080/g' /etc/apache2/ports.conf; apache2ctl -t; exec apache2-foreground"]
+# Pake entrypoint kustom
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["entrypoint.sh"]
+CMD ["apache2-foreground"]
