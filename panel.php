@@ -1,5 +1,5 @@
 <?php
-$db = new PDO('sqlite:panel.db');
+$db = new PDO('sqlite:/tmp/panel.db');
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->exec("CREATE TABLE IF NOT EXISTS licenses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
