@@ -1,4 +1,5 @@
 <?php
+// Pake folder /tmp biar ga crash di Railway
 $db = new PDO('sqlite:/tmp/panel.db');
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->exec("CREATE TABLE IF NOT EXISTS licenses (
@@ -96,7 +97,6 @@ $stat_unused = count(array_filter($licenses, fn($l) => $l['status'] === 'unused'
                     <div class="w-2 h-2 rounded-full bg-[#00FFC2]"></div>
                     <span class="text-[10px] tracking-widest">LIVE</span>
                 </div>
-                <button class="text-slate-400 hover:text-white"><i data-lucide="music" class="w-4 h-4"></i></button>
                 <button class="text-slate-400 hover:text-white"><i data-lucide="user" class="w-4 h-4"></i></button>
             </div>
         </header>
@@ -161,12 +161,6 @@ $stat_unused = count(array_filter($licenses, fn($l) => $l['status'] === 'unused'
                         </h2>
                         <p class="text-xs text-slate-400 mt-1">Daftar key yang diterbitkan di workspace ini.</p>
                     </div>
-                    <div class="flex items-center gap-2 w-full md:w-auto">
-                        <div class="relative flex-1 md:w-64">
-                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-500"></i>
-                            <input type="text" placeholder="Cari key..." class="w-full bg-[#070B0A] border border-[#1F2E2A] rounded-lg py-2 pl-9 pr-3 text-sm focus:outline-none focus:border-[#00FFC2] text-white">
-                        </div>
-                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -188,7 +182,14 @@ $stat_unused = count(array_filter($licenses, fn($l) => $l['status'] === 'unused'
                                     $status_color = $row['status'] == 'active' ? 'text-[#00FFC2] border-[#00FFC2]/30 bg-[#00FFC2]/10' : 'text-slate-400 border-slate-600 bg-slate-800';
                                 ?>
                                 <tr class="hover:bg-[#141C1A] transition group">
-                                    <td class="px-6 py-4 font-mono text-[#00FFC2]"><?= htmlspecialchars($row['key_code']) ?></td>
+                                    <!-- BAGIAN KEY + TOMBOL COPY -->
+                                    <td class="px-6 py-4 font-mono text-[#00FFC2] flex items-center gap-3">
+                                        <?= htmlspecialchars($row['key_code']) ?>
+                                        <button onclick="navigator.clipboard.writeText('<?= htmlspecialchars($row['key_code']) ?>'); alert('Key berhasil di-copy: <?= htmlspecialchars($row['key_code']) ?>');" class="text-slate-500 hover:text-[#00FFC2] transition opacity-0 group-hover:opacity-100" title="Copy Key">
+                                            <i data-lucide="copy" class="w-4 h-4"></i>
+                                        </button>
+                                    </td>
+                                    
                                     <td class="px-6 py-4">
                                         <span class="px-2.5 py-1 text-[10px] uppercase tracking-wider border rounded-full <?= $status_color ?>">
                                             <?= $row['status'] ?>
@@ -226,6 +227,7 @@ $stat_unused = count(array_filter($licenses, fn($l) => $l['status'] === 'unused'
         </div>
     </main>
 
+    <!-- MODAL -->
     <div id="generateModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
         <div class="bg-[#0E1614] border border-[#1F2E2A] w-full max-w-md rounded-2xl p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
